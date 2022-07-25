@@ -1,0 +1,62 @@
+library(shiny)
+library(shinyforms)
+
+# Define the first form: basic information
+basicInfoForm <- list(
+  id = "basicinfo",
+  questions = list(
+    list(id = "name", type = "text", title = "Name", mandatory = TRUE,
+         hint = "Your name exactly as it is shown on your passport"),
+    list(id = "age", type = "numeric", title = "Age", mandatory = FALSE),
+    list(id = "favourite_pkg", type = "text", title = "Favourite R package"),
+    list(id = "terms", type = "checkbox", title = "I agree to the terms")
+  ),
+  storage = list(
+    type = STORAGE_TYPES$FLATFILE,
+    path = "responses"
+  ),
+  name = "Personal info",
+  password = "shinyforms",
+  reset = TRUE,
+  validations = list(
+    list(condition = "nchar(input$name) >= 3",
+         message = "Name must be at least 3 characters"),
+    list(condition = "input$terms == TRUE",
+         message = "You must agree to the terms")
+  )
+)
+
+# Define the second form: soccer
+soccerFormInfo <- list(
+  id = "soccerform",
+  questions = list(
+    list(id = "team", type = "text", title = "Favourite soccer team"),
+    list(id = "player", type = "text", title = "Favourite player")
+  ),
+  storage = list(
+    type = STORAGE_TYPES$FLATFILE,
+    path = "soccer"
+  ),
+  multiple = FALSE
+)
+
+ui <- fluidPage(
+  h1("shinyforms example"),
+  tabsetPanel(
+    tabPanel(
+      "Basic info",
+      formUI(basicInfoForm)
+    ),
+    tabPanel(
+      "Soccer",
+      formUI(soccerFormInfo)
+    )
+  )
+)
+
+server <- function(input, output, session) {
+  formServer(basicInfoForm)
+  formServer(soccerFormInfo)
+}
+
+shinyApp(ui = ui, server = server)
