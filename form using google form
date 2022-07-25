@@ -1,0 +1,39 @@
+library(shiny)
+library(shinyforms)
+library(googlesheets)
+
+# Create a new google sheets file 
+df <- data.frame(name = "", age = 0, favourite_pkg = "", terms = TRUE)
+google_df <- gs_new("responses", input = df, trim = TRUE, verbose = FALSE)
+
+
+questions <- list(
+  list(id = "name", type = "text", title = "Name", mandatory = TRUE),
+  list(id = "age", type = "numeric", title = "Age"),
+  list(id = "favourite_pkg", type = "text", title = "Favourite R package"),
+  list(id = "terms", type = "checkbox", title = "I agree to the terms")
+)
+
+formInfo <- list(
+  id = "basicinfo",
+  questions = questions,
+  storage = list(
+    # Right now, only flat file storage is supported
+    type = STORAGE_TYPES$GOOGLE_SHEETS,
+    # The path where responses are stored
+    path = "responses",
+    # Get the Google sheet key 
+    key = google_df$sheet_key
+    
+  )
+)
+
+ui <- fluidPage(
+  formUI(formInfo)
+)
+
+server <- function(input, output, session) {
+  formServer(formInfo)
+}
+
+shinyApp(ui = ui, server = server)
